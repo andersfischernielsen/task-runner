@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-FileConverter-9bc2de74-7fb5-542b-afeb-7f8gc758f345</UserSecretsId>
+    <SchemasDirectory>$(MSBuildThisFileDirectory)..\..\..\samples\schemas\messages</SchemasDirectory>
+    <GeneratedMessagesFile>$(MSBuildThisFileDirectory)Generated\Messages.g.cs</GeneratedMessagesFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TaskRunner.Dependencies\TaskRunner.Dependencies.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <JsonSchema Include="$(SchemasDirectory)\*.json" />
+  </ItemGroup>
+
+  <Target Name="GenerateMessagesFromSchemas" BeforeTargets="BeforeCompile" Inputs="@(JsonSchema)" Outputs="$(GeneratedMessagesFile)">
+    <Message Importance="high" Text="Generating message types from JSON schemas..." />
+    <Exec Command="dotnet run --project $(MSBuildThisFileDirectory)..\..\tools\SchemaCodeGenerator\SchemaCodeGenerator.csproj -- &quot;$(SchemasDirectory)&quot; &quot;$(GeneratedMessagesFile)&quot; FileConverter.Generated" />
+  </Target>
+</Project>

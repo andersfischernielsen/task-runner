@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file-converted.json",
+  "title": "FileConvertedMessage",
+  "type": "object",
+  "required": [
+    "fileId",
+    "fileName",
+    "contentType",
+    "bucketName",
+    "objectKey",
+    "sizeBytes",
+    "convertedAt"
+  ],
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the converted file"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "Name of the converted file"
+    },
+    "contentType": {
+      "type": "string",
+      "description": "MIME content type of the converted file"
+    },
+    "bucketName": {
+      "type": "string",
+      "description": "Name of the storage bucket"
+    },
+    "objectKey": {
+      "type": "string",
+      "description": "Object key/path in the storage bucket"
+    },
+    "sizeBytes": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Size of the converted file in bytes"
+    },
+    "convertedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the file was converted"
+    }
+  },
+  "additionalProperties": false
+}

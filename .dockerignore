@@ -1,0 +1,6 @@
+typescript/bun.lockb
+typescript/node_modules/
+typescript/src/messages.generated.ts
+dotnet/**/bin/
+dotnet/**/obj/
+.git/

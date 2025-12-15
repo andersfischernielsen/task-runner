@@ -1,0 +1,149 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: taskrunner-postgres
+    environment:
+      POSTGRES_USER: taskrunner
+      POSTGRES_PASSWORD: taskrunner
+      POSTGRES_DB: taskrunner
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./samples/infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskrunner -d taskrunner"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: taskrunner-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: taskrunner
+      RABBITMQ_DEFAULT_PASS: taskrunner
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: taskrunner-localstack
+    environment:
+      SERVICES: s3
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./samples/infra/localstack/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh:ro
+      - ./samples/fish.jpg:/test-data/fish.jpg:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dotnet-file-verifier:
+    build:
+      context: .
+      dockerfile: dotnet/samples/FileVerifier/Dockerfile
+    container_name: taskrunner-dotnet-file-verifier
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=taskrunner;Username=taskrunner;Password=taskrunner"
+      RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
+      S3_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_PATH_STYLE: path
+      AWS_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    restart: unless-stopped
+
+  dotnet-file-converter:
+    build:
+      context: .
+      dockerfile: dotnet/samples/FileConverter/Dockerfile
+    container_name: taskrunner-dotnet-file-converter
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=taskrunner;Username=taskrunner;Password=taskrunner"
+      RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
+      S3_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_PATH_STYLE: path
+      AWS_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    restart: unless-stopped
+
+  typescript-file-verifier:
+    build:
+      context: .
+      dockerfile: typescript/samples/FileVerifier/Dockerfile
+    container_name: taskrunner-typescript-file-verifier
+    environment:
+      NODE_ENV: development
+      POSTGRES_CONNECTION: "postgres://taskrunner:taskrunner@postgres:5432/taskrunner"
+      RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    restart: unless-stopped
+
+  typescript-file-converter:
+    build:
+      context: .
+      dockerfile: typescript/samples/FileConverter/Dockerfile
+    container_name: taskrunner-typescript-file-converter
+    environment:
+      NODE_ENV: development
+      POSTGRES_CONNECTION: "postgres://taskrunner:taskrunner@postgres:5432/taskrunner"
+      RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  localstack_data:

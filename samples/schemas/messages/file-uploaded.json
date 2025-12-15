@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "file-uploaded.json",
+  "title": "FileUploadedMessage",
+  "type": "object",
+  "required": [
+    "fileId",
+    "fileName",
+    "contentType",
+    "bucketName",
+    "objectKey",
+    "sizeBytes",
+    "uploadedAt"
+  ],
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the uploaded file"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "Original name of the uploaded file"
+    },
+    "contentType": {
+      "type": "string",
+      "description": "MIME content type of the file"
+    },
+    "bucketName": {
+      "type": "string",
+      "description": "Name of the storage bucket"
+    },
+    "objectKey": {
+      "type": "string",
+      "description": "Object key/path in the storage bucket"
+    },
+    "sizeBytes": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Size of the file in bytes"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the file was uploaded"
+    }
+  },
+  "additionalProperties": false
+}

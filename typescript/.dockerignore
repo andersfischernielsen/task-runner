@@ -1,0 +1,8 @@
+# Exclude platform-specific lockfile
+bun.lockb
+
+# Exclude node_modules - will be installed fresh in container
+node_modules/
+
+# Exclude generated files - will be regenerated in container
+src/messages.generated.ts

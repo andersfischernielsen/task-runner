@@ -1,0 +1,5 @@
+{
+  "title": "Topic",
+  "type": "string",
+  "enum": ["FileUploaded", "FileVerified", "FileConverted"]
+}
