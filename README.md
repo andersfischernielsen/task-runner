@@ -1,6 +1,21 @@
 # TaskRunner
 
-A message-driven task runner framework with SDKs for .NET and TypeScript.
+A message-driven task runner framework with SDKs for .NET and TypeScript, supporting complex task pipelines.
+
+---
+
+A _task_ is represented by a _message_ containing data necessary to carry out the task. 
+_Runners_ execute assigned tasks as fast as messages can be delivered.
+
+- All messages are strictly typed.
+- Tasks are only processed once by a task runner, simplifying concurrent task processing.
+- Tasks will always either fail or succeed.
+- Queues are automatically set up with poison message/dead letter handling via retries and separate queues.
+- Emitting the same message to multiple task runners is supported (fan-out), allowing for both forks and merges in task pipelines.
+- Exchanges and queues required for task delivery are automatically configured by all SDKs.
+
+The SDKs provide abstractions for databases, file storage, and message transport.
+The included implementations use PostgreSQL, S3, and RabbitMQ, but these can be swapped for other providers.
 
 ## SDKs
 
@@ -9,14 +24,14 @@ A message-driven task runner framework with SDKs for .NET and TypeScript.
 | [.NET](./dotnet/README.md)           | C# SDK using RabbitMQ, PostgreSQL, and S3 |
 | [TypeScript](./typescript/README.md) | TypeScript SDK using Bun runtime          |
 
-The SDKs provide abstractions for databases, file storage, and message transport.
-The included implementations use PostgreSQL, S3, and RabbitMQ, but these can be swapped for other providers.
+---
 
-## Message Schemas
+## Message Schemas/Topics
 
-Message types are defined as JSON Schema in [`samples/schemas/messages/`](./samples/schemas/messages/) and auto-generated into each SDK.
+All message types are defined as JSON Schema in [`samples/schemas/messages/`](./samples/schemas/messages/) and auto-generated into each SDK. 
+This ensures strict types while allowing runners to be implemented in the appropriate language for the tasks they carry out. 
 
-## Running
+## Running the samples
 
 Start the full stack (PostgreSQL, RabbitMQ, LocalStack S3, and sample runners):
 
