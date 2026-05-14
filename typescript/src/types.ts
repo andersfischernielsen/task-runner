@@ -1,4 +1,4 @@
-import type { SQL } from "bun";
+import type { Sql } from "postgres";
 import type { ZodSchema } from "zod";
 
 export enum Topic {
@@ -23,7 +23,7 @@ export interface FileStorage {
 }
 
 export interface Database {
-  withConnection: <T>(action: (connection: SQL) => Promise<T>) => Promise<T>;
+  withConnection: <T>(action: (connection: Sql) => Promise<T>) => Promise<T>;
 }
 
 export interface TraceScope {

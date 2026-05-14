@@ -1,5 +1,6 @@
 # Exclude platform-specific lockfile
 bun.lockb
+bun.lock
 
 # Exclude node_modules - will be installed fresh in container
 node_modules/

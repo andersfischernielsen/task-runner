@@ -1,6 +1,6 @@
-import winston, { createLogger as createWinstonLogger } from "winston";
-import { Console } from "winston/lib/winston/transports";
-import { S3Client, SQL } from "bun";
+import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import postgres from "postgres";
+import winston from "winston";
 import type {
   Database,
   FileStorage,
@@ -8,7 +8,7 @@ import type {
   StorageObjectId,
   Tracer,
   TraceScope,
-} from "./types";
+} from "./types.js";
 
 const noOpScope: TraceScope = {
   setTag: () => {},
@@ -26,22 +26,27 @@ export const createS3FileStorage = (): FileStorage => {
   const client = new S3Client({
     region: process.env["AWS_REGION"] as string,
     endpoint: process.env["S3_ENDPOINT"],
-    accessKeyId: process.env["AWS_ACCESS_KEY_ID"] as string,
-    secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"] as string,
-    virtualHostedStyle: process.env["AWS_PATH_STYLE"] !== "path",
+    credentials: {
+      accessKeyId: process.env["AWS_ACCESS_KEY_ID"] as string,
+      secretAccessKey: process.env["AWS_SECRET_ACCESS_KEY"] as string,
+    },
+    forcePathStyle: process.env["AWS_PATH_STYLE"] === "path",
   });
 
   const getKey = (id: StorageObjectId) => `${id.container}/${id.key}`;
 
   return {
     openRead: async (id: StorageObjectId): Promise<ReadableStream> => {
-      const buffer = await client.file(getKey(id)).arrayBuffer();
-      return new ReadableStream({
-        start(controller) {
-          controller.enqueue(new Uint8Array(buffer));
-          controller.close();
-        },
+      const command = new GetObjectCommand({
+        Bucket: id.container,
+        Key: id.key,
       });
+      const response = await client.send(command);
+      const body = response.Body as ReadableStream | undefined;
+      if (!body) {
+        throw new Error(`Empty response body for ${getKey(id)}`);
+      }
+      return body;
     },
     write: async (
       id: StorageObjectId,
@@ -63,20 +68,30 @@ export const createS3FileStorage = (): FileStorage => {
         buffer.set(chunk, offset);
         offset += chunk.length;
       }
-      await client.write(getKey(id), buffer);
+      const command = new PutObjectCommand({
+        Bucket: id.container,
+        Key: id.key,
+        Body: buffer,
+        ContentType: _contentType,
+      });
+      await client.send(command);
     },
     delete: async (id: StorageObjectId): Promise<void> => {
-      await client.delete(getKey(id));
+      const command = new DeleteObjectCommand({
+        Bucket: id.container,
+        Key: id.key,
+      });
+      await client.send(command);
     },
   };
 };
 
 export const createPostgresDatabase = (connectionString: string): Database => {
-  const sql = new SQL(connectionString, { max: 2 });
+  const sql = postgres(connectionString, { max: 2 });
 
   return {
     withConnection: async <T>(
-      action: (connection: SQL) => Promise<T>,
+      action: (connection: ReturnType<typeof postgres>) => Promise<T>,
     ): Promise<T> => {
       return action(sql);
     },
@@ -84,8 +99,8 @@ export const createPostgresDatabase = (connectionString: string): Database => {
 };
 
 export const createLogger = (): Logger => {
-  const winstonLogger = createWinstonLogger({
-    transports: [new Console()],
+  const winstonLogger = winston.createLogger({
+    transports: [new winston.transports.Console()],
     format: winston.format.combine(
       winston.format.errors({ stack: true }),
       winston.format.json(),

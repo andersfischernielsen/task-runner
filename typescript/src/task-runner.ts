@@ -1,4 +1,5 @@
 import { type Channel, type ConsumeMessage, connect } from "amqplib";
+import { writeFile } from "node:fs/promises";
 import type {
   Context,
   Dependencies,
@@ -6,11 +7,11 @@ import type {
   TaskRunner,
   TaskRunnerOptions,
   Topic,
-} from "./types";
+} from "./types.js";
 
 const setRunnerReady = async (isReady: boolean, logger: Logger) => {
   try {
-    await Bun.write("/var/run/runner-ready", isReady ? "true" : "false");
+    await writeFile("/var/run/runner-ready", isReady ? "true" : "false");
     logger.debug(
       `Runner marked ${
         isReady ? "ready" : "not ready"

@@ -106,11 +106,11 @@ services:
       NODE_ENV: development
       POSTGRES_CONNECTION: "postgres://taskrunner:taskrunner@postgres:5432/taskrunner"
       RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
-      AWS_ENDPOINT: http://localstack:4566
+      S3_ENDPOINT: http://localstack:4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: us-east-1
-      S3_FORCE_PATH_STYLE: "true"
+      AWS_PATH_STYLE: path
     depends_on:
       postgres:
         condition: service_healthy
@@ -129,11 +129,11 @@ services:
       NODE_ENV: development
       POSTGRES_CONNECTION: "postgres://taskrunner:taskrunner@postgres:5432/taskrunner"
       RABBIT_MQ_CONNECTION: "amqp://taskrunner:taskrunner@rabbitmq:5672"
-      AWS_ENDPOINT: http://localstack:4566
+      S3_ENDPOINT: http://localstack:4566
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: us-east-1
-      S3_FORCE_PATH_STYLE: "true"
+      AWS_PATH_STYLE: path
     depends_on:
       postgres:
         condition: service_healthy

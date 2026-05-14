@@ -4,18 +4,21 @@
  * Usage: bun run scripts/generate-messages.ts
  */
 
-import { readdir, readFile, writeFile, mkdir } from "fs/promises";
-import { join, basename } from "path";
+import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
+import { join, basename, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 
 const SCHEMAS_DIR = "../samples/schemas/messages";
 const TOPICS_FILE = "../samples/schemas/topics.json";
 const OUTPUT_FILE = "./src/messages.generated.ts";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 async function main() {
-  const schemasPath = join(import.meta.dir, "..", SCHEMAS_DIR);
-  const topicsPath = join(import.meta.dir, "..", TOPICS_FILE);
-  const outputPath = join(import.meta.dir, "..", OUTPUT_FILE);
+  const schemasPath = join(__dirname, "..", SCHEMAS_DIR);
+  const topicsPath = join(__dirname, "..", TOPICS_FILE);
+  const outputPath = join(__dirname, "..", OUTPUT_FILE);
 
   console.log(`Reading schemas from: ${schemasPath}`);
 

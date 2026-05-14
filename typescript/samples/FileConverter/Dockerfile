@@ -1,15 +1,16 @@
-FROM oven/bun:latest
+FROM node:26-alpine
+
+RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
 COPY samples/schemas ../samples/schemas
 
-COPY typescript/package.json typescript/bun.lock ./
-RUN bun install --frozen-lockfile
+COPY typescript/package.json typescript/package-lock.json ./
+RUN npm ci
 
 COPY typescript/. .
 
-RUN bun run generate:messages
+RUN npm run generate:messages
 
-CMD ["bun", "run", "samples/FileConverter/main.ts"]
-
+CMD ["npx", "tsx", "samples/FileConverter/main.ts"]

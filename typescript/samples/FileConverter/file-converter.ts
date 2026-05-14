@@ -1,8 +1,8 @@
-import { Topic, type Context } from "../../src/types";
+import { Topic, type Context } from "../../src/types.js";
 import type {
   FileVerifiedMessage,
   FileConvertedMessage,
-} from "../../src/messages";
+} from "../../src/messages.js";
 import sharp from "sharp";
 export const onMessage = async (
   message: FileVerifiedMessage,

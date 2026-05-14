@@ -1,16 +1,16 @@
-import { taskRunner } from "../../src/task-runner";
+import { taskRunner } from "../../src/task-runner.js";
 import {
   createLogger,
   createNoOpTracer,
   createPostgresDatabase,
   createS3FileStorage,
-} from "../../src/dependencies";
-import { onMessage } from "./file-verifier";
+} from "../../src/dependencies.js";
+import { onMessage } from "./file-verifier.js";
 import {
   fileuploadedmessageSchema,
   fileverifiedmessageSchema,
-} from "../../src/messages";
-import { Topic } from "../../src/types";
+} from "../../src/messages.js";
+import { Topic } from "../../src/types.js";
 
 taskRunner(
   {

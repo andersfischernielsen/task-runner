@@ -1,8 +1,8 @@
-import { Topic, type Context } from "../../src/types";
+import { Topic, type Context } from "../../src/types.js";
 import type {
   FileUploadedMessage,
   FileVerifiedMessage,
-} from "../../src/messages";
+} from "../../src/messages.js";
 
 export const onMessage = async (
   message: FileUploadedMessage,
