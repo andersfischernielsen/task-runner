@@ -13,4 +13,4 @@ COPY typescript/. .
 
 RUN npm run generate:messages
 
-CMD ["npx", "tsx", "samples/FileVerifier/main.ts"]
+CMD ["node", "samples/FileVerifier/main.ts"]
