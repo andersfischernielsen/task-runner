@@ -7,7 +7,7 @@ WORKDIR /app
 COPY samples/schemas ../samples/schemas
 
 COPY typescript/package.json typescript/package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY typescript/. .
 
